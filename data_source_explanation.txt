@@ -1,0 +1,44 @@
+I am using two data sources.  One for weather and one for collision reports in NYC.
+The weather data file (central_park_temp.csv)  is provided by the  National Oceanic and Atmospheric Administration (NOAA) and incorporates daily summaries weather records from Central Park weather station in NYC ( Station code: GHCND:USW00094728) from Jan-01-1876 to Jan-01-2016.  
+
+The features in the data file are :
+STATION= is the station identification code.
+STATION_NAME= is the name of the station 
+DATE=  the year of the record (4 digits) followed by month (2 digits) and day (2 digits)
+PRCP =Precipitation (tenths of mm)SNWD= Snow depth (mm, inches on Daily Form pdf file)
+SNOW = Snowfall (mm, inches to tenths on Daily Form pdf file)
+TMAX = Maximum temperature (Fahrenheit) 
+ TMIN = Minimum temperature  (Fahrenheit) 
+ACMH = Average cloudiness midnight to midnight from manual observations (percent)
+TOBS = Temperature at the time of observation
+
+
+
+
+The car accidents report data file (NYPD_Motor_Vehicle_Collisions.rar) was downloaded from NYC Open Data and contains the Motor Vehicle Collisions in New York City provided by the Police Department. NYPD records for road accidents from July-01-2012 to Jan-26-2016.
+The features in the data file are :
+DATE - Date of collision
+TIME - Time of collision
+BOROUGH - Borough name
+ZIP CODE - Zip code
+LATITUDE - GPS coordinates  latitude
+LONGITUDE -  GPS coordinates  latitude
+LOCATION - Full GPS coordinates
+ON STREET NAME - Street where collision happened
+CROSS STREET NAME - Cross street from collision street
+OFF STREET NAME - Off street from collision
+ VEHICLE TYPE CODE 1-5: Type of Involved vehicle up to 5. Options are:
+ TAXI,SPORT UTILITY / STATION WAGON,LIVERY VEHICLE,  PASSENGER VEHICLE ,MOTORCYCLE,LARGE COM VEH(6 OR MORE TIRES),UNKNOWN, VAN, AMBULANCE ,BUS,SMALL COM VEH(4 TIRES),PICK-UP TRUCK, SCOOTER, FIRE TRUCK, BICYCLE ,PEDICAB                        
+CONTRIBUTING FACTOR VEHICLE 1-5: Reason for involvement in accident for corresponding vehicle. 
+UNIQUE KEY: Unique record key.
+
+These below are self explanatory:
+NUMBER OF PERSONS INJURED:
+NUMBER.OF.PERSONS.KILLED
+NUMBER.OF.PEDESTRIANS.INJURED
+NUMBER.OF.PEDESTRIANS.KILLED  
+NUMBER.OF.CYCLIST.INJURED     
+NUMBER.OF.CYCLIST.KILLED    
+NUMBER.OF.MOTORIST.INJURED   
+NUMBER.OF.MOTORIST.KILLED    
+
