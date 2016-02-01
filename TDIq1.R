@@ -24,7 +24,7 @@ jackblack<-function(deck,target,draws=0) { #Plays jackblack, returns score and n
 }
 
 game_results<-NULL
-rounds<-10000
+rounds<-100000
 
 for (i in 1:rounds) {
 
@@ -34,10 +34,17 @@ for (i in 1:rounds) {
 
 scores<-game_results[seq(1,length(game_results),2)]
 draws<-game_results[seq(2,length(game_results),2)]
+df<-data.frame(scores,draws)
+mean(df$scores)
+sd(df$scores)
 
-mean(scores)
-sd(scores)
 
+
+draw8<-filter(df,draws>=8) #All draws>=8 games
+score5<-sum(draw8$score<=5) # Number of times scores <=5 when drawing 8 cards 
+cond_p<-score5/nrow(draw8) #Dividing number of times with total draws
+cond_p # Cond_p approaches 0.33 
+#The more we play the mean and sd are closer to 25 and 19.25 respectively  
 
 
 
@@ -51,13 +58,13 @@ clusterExport(cl=cl, varlist=varlist,envir=environment())
 
 
 
-r<-1:200 #Each CPU core would be accessed r times
+r<-1:1000 #Each CPU core would be accessed r times
   
   game_results<-parSapply(cl,r,function (r)  { #Parralleling
     
     game_results<-NULL
     
-    for (i in 1:1000) { # Number of games assigned to each CPU core 
+    for (i in 1:1000) { # Number of games assigned to each CPU core total: r*i = 1000*1000=10^6
       game_results<-c(game_results,jackblack(deck,21))
     }
     
@@ -67,6 +74,7 @@ r<-1:200 #Each CPU core would be accessed r times
 
 scores<-game_results[seq(1,length(game_results),2)] #Scores are at the odd indices, number of draws are at the even indices
 draws<-game_results[seq(2,length(game_results),2)]
+
 mean(scores)
 sd(scores)
 
@@ -100,18 +108,3 @@ sd(scores)
 
 
 
-
-
-
-
-
-
-jackblack<-function(deck,target,draws=NULL) {
-  if (target<=0) { #Exiting when hitting or surpassing target
-    return(c(-target,draws))
-  }
-  draw<-sample(deck,1)
-  draws<-c(draws,draw)
-  target<-target-draw #Getting closer to the target with each draw: sample(deck,1)
-  jackblack(deck,target,draws)
-}
