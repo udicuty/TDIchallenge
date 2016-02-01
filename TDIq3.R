@@ -15,7 +15,7 @@ NYPD<-fread("Data/NYPD_Motor_Vehicle_Collisions.csv",data.table=FALSE)
 colnames(NYPD)<-make.names(colnames(NYPD))
 NYPD$DATE<-mdy(NYPD$DATE)
 M<-filter(NYPD,BOROUGH=="MANHATTAN") %>% arrange(DATE)
-M<-filter(NYPD,NUMBER.OF.PERSONS.INJURED<100) %>% arrange(DATE) #Removing outliers
+#M<-filter(NYPD) %>% arrange(DATE) #Removing outliers
 #M$MONTH<-substring(M$DATE,1,7)
 
 #Summarizing information from NYPD file, "rat" stands for injured/incidents ratio
@@ -52,11 +52,10 @@ ped_slope
 
 
 dd<-melt(d,measure.vars=c("ped_injured","non_ped_injured"))
+colnames(dd)<-c("DATE","PRCP","Type","Injuries")
 head(dd)
 
-ggplot(dd,aes(PRCP,value,col=variable)) + geom_point()
-
-ggplot(dd,aes(PRCP,value,col=variable)) + geom_point() + geom_abline(intercept= nonped_intercept,slope=nonped_slope,col="cyan",size=1.5) + geom_abline(intercept= ped_intercept,slope=ped_slope,col="Orange",size=1.5)
+ggplot(dd,aes(PRCP,Injuries,col=Type)) + geom_point() + geom_abline(intercept= nonped_intercept,slope=nonped_slope,col="cyan",size=1.5) + geom_abline(intercept= ped_intercept,slope=ped_slope,col="Orange",size=1.5) +xlab("rain(mm) / day") +ylab("injuries / day") + ggtitle( label="Rain vs Injuries, corellation")
 
 
 
@@ -67,59 +66,24 @@ rainy_days<-w$DATE[w$PRCP>0]
 M$rainy_days<-M$DATE %in% rainy_days
 
 
-x<-select(M,VEHICLE.TYPE.CODE.1,NUMBER.OF.PERSONS.INJURED,NUMBER.OF.PEDESTRIANS.INJURED,BOROUGH,NUMBER.OF.PERSONS.KILLED,rainy_days)
-x[x==""]<-"UNKNOWN"
+
+#x<-select(M,VEHICLE.TYPE.CODE.1,NUMBER.OF.PERSONS.INJURED,NUMBER.OF.PEDESTRIANS.INJURED,BOROUGH,NUMBER.OF.PERSONS.KILLED,rainy_days)
+#x[x==""]<-"UNKNOWN"
 
 
-
-by_rain<-group_by(M,rainy_days) %>% summarize(incidents=n(),rain_d=n_distinct(DATE),ped_inj==sum(VEHICLE.TYPE.CODE.1=="TAXI")/rain_d
+by_rain<-group_by(M,rainy_days) %>% summarize(incidents=n(),rain_d=n_distinct(DATE),taxi=sum(VEHICLE.TYPE.CODE.1=="TAXI")/rain_d,
             taxi=sum(VEHICLE.TYPE.CODE.1=="TAXI")/rain_d,
             twowheels=sum(VEHICLE.TYPE.CODE.1 %in% c("BICYCLE","MOTORCYCLE","SCOOTER"))/rain_d,
             pas_vehicle=sum(VEHICLE.TYPE.CODE.1=="PASSENGER VEHICLE")/rain_d,
             bus=sum(VEHICLE.TYPE.CODE.1=="BUS")/rain_d)
 
 x<-as.data.frame(by_rain)
-x<-select(x,taxi:bus)
+x<-select(x,c(rainy_days,taxi:bus))
 x<-apply(x,2,function(x) x/sum(x))
-x<-melt(x)
-x
-x$rain<-c(rep(c(0,1),4))
-x
+x<-as.data.frame(x)
+colnames(x)[1]<-"rain"
+x$rain<-as.factor(x$rain)
+x<-melt(x,measure.vars = colnames(x[,2:5]))
 
+ggplot(x,aes(variable,value,fill=rain)) + geom_bar(stat="identity") + ylab("accidents ratio") +xlab ("vehicle") + ggtitle ("Acidents invovlment ratio by rain status")
 
-xx<-melt(x)
-xx
-melt(x)
-head(xx)
-xx<-x[,8:10]
-
-ggplot(x,aes(X2,value,fill=as.factor(rain))) + geom_bar(stat="identity") 
-
-xx$rain<-c(0,1,0,1,0,1)
-
-qplot(x)
-qplot()
-melt(x)
-
-require(reshape)
-x$per<-x$ped_inj_rat/sum(x$ped_inj_rat)
-x
-pie (x$per,labels = c(rain))
-
-ggplot()
-
-ggplot(by_rain)
-
-
-
-#i$q<-quantcut(i$injured, q=seq(0,1,by=0.25), na.rm=TRUE,c(1:4))
-
-
-
-
-
-#ggplot(x,aes(x==BOROUGH)) + geom_histogram()
-#ggplot(x,aes(x=count,y=MONTH)) + geom_bar()
-#qplot(factor(MONTH),datax$count,geom_bar())
-
-#qplot(x$count,fill=x$VEHICLE.TYPE.CODE.1)
