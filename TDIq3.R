@@ -7,12 +7,12 @@ require(reshape)
 
 
 #Reading central park temperatures and filtering for dates that intersect with NYPD accident records
-w<-fread("Data/central_park_temp.csv",data.table=FALSE)
+w<-fread("GIT/central_park_temp.csv",data.table=FALSE)
 w$DATE<-ymd(w$DATE)
 w<-filter(w,PRCP<1000) # Removing outliers
 
 #Reading NYPD data for Manhattan only
-NYPD<-fread("Data/NYPD_Motor_Vehicle_Collisions.csv",data.table=FALSE)
+NYPD<-fread("GIT/NYPD_Motor_Vehicle_Collisions.csv",data.table=FALSE)
 colnames(NYPD)<-make.names(colnames(NYPD))
 NYPD$DATE<-mdy(NYPD$DATE)
 M<-filter(NYPD,BOROUGH=="MANHATTAN") %>% arrange(DATE)
