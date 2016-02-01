@@ -60,16 +60,3 @@ headway_list<-headway_list[!names(headway_list)=="405315"] #REMOVE FIRST STATION
 print ("Headway variance in m^2 == standard deviation (sec/60):")
 sd(as.numeric(unlist(headway_list))/60) 
 
-
-
-
-#Lateness
-st<-fread("./Data//Scheduled/stop_times.txt",data.table=FALSE,stringsAsFactors = F)
-st$route<-sapply(strsplit(stop_times$trip_id,split="_"),"[[",3)
-M116st<-filter(st,route=="M116",trip_id %in% M116_SW$trip_id)
-
-
-
-
-
-
