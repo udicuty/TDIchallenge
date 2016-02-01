@@ -1,12 +1,8 @@
-
-#For the answer below I took the "brute force" approach, generating distribution of 10^6 jackblack games, and measuring the mean and sd of the scores.
+#For the answer below I took the "brute force" approach. Namely, I am measuring the mean and sd from a distribution of 10^6 jackblack games. 
 # I recognize that this is not the best way to do it. I would prefer to write a recursive function that generates all possible combinations that reach/surpass the target.
-# Then calculate probability for each combination (raising 1/7 to the power of draws) and then multiply by the score, the answer would be the mean score.
-#Similiarly, The sd would then be calculated.....
-#I started with this approach but due to time constraints had to ditch it in favour of the brute force approach,
-#to compensate for processing time I paralleled the process and using 4 cores. 
-
-
+# Afterwards, calculating the probability for each combination (by raising 1/7 to the power of draws) and multiply by the corresponding score, to get the mean, similiarly I can exteact the sd.
+#I started with this approach but due to time constraints had to ditch it in favour of the brute force approach
+#To compensate for processing time I have also experimented with paralelling the run to 4 cores
 
 require(dplyr)
 #Creating deck
@@ -17,7 +13,7 @@ deck11<-c(11,2,4,8,16,32,64)
 
 
 #Jackblack game function
-jackblack<-function(deck,target,draws=0) { #Plays jackblack, returns score and number of draws
+jackblack<-function(deck,target,draws=0) { #Plays jackblack, returns score and number of draws to target
   if (target<=0) { #Exiting when hitting or surpassing target
     return(c(-target,draws))
   }
@@ -27,19 +23,52 @@ jackblack<-function(deck,target,draws=0) { #Plays jackblack, returns score and n
   jackblack(deck,target,draws)
 }
 
+game_results<-NULL
+rounds<-10000
+
+for (i in 1:rounds) {
+
+  game_results<-c(game_results,jackblack(deck,21))
+
+}
+
+scores<-game_results[seq(1,length(game_results),2)]
+draws<-game_results[seq(2,length(game_results),2)]
+
+mean(scores)
+sd(scores)
 
 
 
-# Target=21, regular deck, 10^5 games
 
-scores_list<-list()
-for (i in 1:100000) { 
-      scores_list[[i]]<-jackblack(deck11,21) #Recording score and number of draws for each game 
+#Paralelled version
+
+require(parallel)
+cores<-4
+cl <- makeCluster(cores)
+varlist=c("jackblack","deck")
+clusterExport(cl=cl, varlist=varlist,envir=environment())
+
+
+
+r<-1:200 #Each CPU core would be accessed r times
+  
+  game_results<-parSapply(cl,r,function (r)  { #Parralleling
+    
+    game_results<-NULL
+    
+    for (i in 1:1000) { # Number of games assigned to each CPU core 
+      game_results<-c(game_results,jackblack(deck,21))
     }
-df<-t(as.data.frame(scores_list,row.names = c("score","draws")))
-df<-as.data.frame(df)
-mean(df$score)
-sd(df$score)
+    
+    return(game_results)
+    
+  })
+
+scores<-game_results[seq(1,length(game_results),2)] #Scores are at the odd indices, number of draws are at the even indices
+draws<-game_results[seq(2,length(game_results),2)]
+mean(scores)
+sd(scores)
 
 
 
