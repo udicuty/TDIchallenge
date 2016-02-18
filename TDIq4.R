@@ -16,11 +16,14 @@ NYPD<-fread("DATA/NYPD_Motor_Vehicle_Collisions.csv",data.table=FALSE)
 colnames(NYPD)<-make.names(colnames(NYPD))
 NYPD$DATE<-mdy(NYPD$DATE)
 
-borough<-"MANHATTAN"
+borough<-"ALL BOROUGHS"
 M<-filter(NYPD,BOROUGH=="MANHATTAN") %>% arrange(DATE)
 M<-filter(NYPD,BOROUGH=="BROOKLYN") %>% arrange(DATE)
 M<-filter(NYPD,BOROUGH=="QUEENS") %>% arrange(DATE)
 M<-filter(NYPD,BOROUGH==borough) %>% arrange(DATE)
+if (borough=="ALL BOROUGHS") {
+  M<-filter(NYPD) %>% arrange(DATE)
+}
 
 #M<-filter(NYPD) %>% arrange(DATE) 
 #M$MONTH<-substring(M$DATE,1,7)
@@ -126,6 +129,11 @@ xx_corrected<-xx_corrected<=0.05
 
 g<-melt(xx_corrected)
 head(g)
+colnames(g)[3]<-"dependency"
 g$X2<-gsub("NUMBER.OF.",replacement = "",g$X2)
+g$X1<-substr(g$X1,1,25)
+ggplot(g,aes(X2,X1,fill=dependency)) + geom_tile(col="black") + theme(axis.text.x = element_text(angle =90,vjust = 0.8,hjust=1,size=10), axis.text.y = element_text(size=8)) +
+  ggtitle (paste0("Dependency Outcome/factor 07-2012 - 01-2016 ",borough)) + xlab("Outcome") + ylab("Contributing factor vehicle 1") + ggsave(paste0("factor_dependency_",borough,".jpg"))
 
-ggplot(g,aes(X2,X1,fill=value)) + geom_tile(col="black") + theme(axis.text.x = element_text(angle =90,vjust = 0.8,hjust=1,size=10)) + ggsave(paste0("factor_dependency_",borough,".jpg"))
+k<-filter(M,CONTRIBUTING.FACTOR.VEHICLE.1=="Pavement Defective") %>% summarize(sum(NUMBER.OF.PERSONS.INJURED))
+
